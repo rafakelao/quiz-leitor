@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Perfil de Leitor — Quiz</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --void:#0d0d12;--deep:#13131c;--surface:#1c1c2a;--border:#2e2e42;
+  --border-lit:#4a4a6a;--mist:#8888aa;--ghost:#c5c5d8;--paper:#eeeaf4;
+  --amber:#e8a030;--amber-dim:#b87820;--crimson:#c0324a;--teal:#2dd4bf;
+  --sel-bg:rgba(232,160,48,0.10);--sel-border:#e8a030;
+}
+html{scroll-behavior:smooth}
+body{background:var(--void);color:var(--paper);font-family:'DM Sans',sans-serif;min-height:100vh;display:flex;justify-content:center;padding:0 16px 80px}
+.wrap{width:100%;max-width:700px}
+
+/* HEADER */
+.site-header{padding:56px 0 48px;border-bottom:1px solid var(--border);margin-bottom:48px}
+.rune-line{display:flex;align-items:center;gap:14px;margin-bottom:20px}
+.rune-line::before,.rune-line::after{content:'';flex:1;height:1px}
+.rune-line::before{background:linear-gradient(90deg,transparent,var(--amber-dim))}
+.rune-line::after{background:linear-gradient(90deg,var(--amber-dim),transparent)}
+.rune{font-size:11px;letter-spacing:.25em;text-transform:uppercase;color:var(--amber);font-weight:600;white-space:nowrap}
+h1{font-family:'Libre Baskerville',serif;font-size:clamp(2rem,5.5vw,3.2rem);font-weight:700;line-height:1.08;color:var(--paper);margin-bottom:14px}
+h1 .hl{color:var(--amber);font-style:italic}
+.header-sub{font-size:14px;color:var(--mist);font-weight:300;line-height:1.6;max-width:520px}
+.multi-badge{display:inline-flex;align-items:center;gap:6px;margin-top:18px;padding:6px 14px;background:rgba(45,212,191,.08);border:1px solid rgba(45,212,191,.25);border-radius:2px;font-size:12px;color:var(--teal);font-weight:500;letter-spacing:.04em}
+.multi-badge::before{content:'✦';font-size:9px}
+
+/* PROGRESS */
+.progress-row{display:flex;align-items:center;gap:14px;margin-bottom:32px}
+.prog-track{flex:1;height:2px;background:var(--border);border-radius:2px;overflow:visible;position:relative}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--amber-dim),var(--amber));border-radius:2px;transition:width .5s cubic-bezier(.4,0,.2,1);position:relative}
+.prog-fill::after{content:'';position:absolute;right:-1px;top:-3px;width:8px;height:8px;background:var(--amber);border-radius:50%;box-shadow:0 0 8px var(--amber)}
+.prog-label{font-size:11px;color:var(--mist);letter-spacing:.1em;white-space:nowrap;font-variant-numeric:tabular-nums}
+
+/* QUESTION */
+.q-card{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:36px 32px 28px;margin-bottom:16px;animation:rise .32s ease both}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.q-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.q-num{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--crimson);font-weight:600}
+.q-hint{font-size:10px;letter-spacing:.06em;color:var(--border-lit);font-weight:500;text-transform:uppercase}
+.q-text{font-family:'Libre Baskerville',serif;font-size:clamp(1.05rem,2.8vw,1.3rem);line-height:1.4;color:var(--paper);margin-bottom:26px;font-weight:400}
+.options{display:flex;flex-direction:column;gap:9px}
+.opt{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border:1.5px solid var(--border);border-radius:2px;cursor:pointer;transition:border-color .15s,background .15s;user-select:none;-webkit-user-select:none}
+.opt:hover{border-color:var(--border-lit);background:rgba(255,255,255,.02)}
+.opt.selected{border-color:var(--sel-border);background:var(--sel-bg)}
+.opt-check{flex-shrink:0;width:18px;height:18px;border:1.5px solid var(--border-lit);border-radius:2px;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:border-color .15s,background .15s;font-size:11px;color:transparent}
+.opt.selected .opt-check{border-color:var(--amber);background:var(--amber);color:var(--void);font-weight:700}
+.opt-letter{font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--mist);min-width:14px;margin-top:2px;flex-shrink:0;transition:color .15s}
+.opt.selected .opt-letter{color:var(--amber)}
+.opt-text{font-size:14px;line-height:1.5;color:var(--ghost);transition:color .15s}
+.opt.selected .opt-text{color:var(--paper)}
+
+/* NAV */
+.nav-row{display:flex;gap:10px;justify-content:flex-end}
+.btn{padding:11px 24px;border-radius:2px;border:none;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .18s}
+.btn:disabled{opacity:.28;cursor:default}
+.btn-primary{background:var(--amber);color:var(--void)}
+.btn-primary:hover:not(:disabled){background:#f0b040}
+.btn-ghost{background:transparent;color:var(--mist);border:1.5px solid var(--border)}
+.btn-ghost:hover{border-color:var(--border-lit);color:var(--ghost)}
+
+/* RESULT */
+#result-section{display:none}
+.loading-scene{display:flex;flex-direction:column;align-items:center;padding:80px 20px;gap:24px}
+.tome-icon{font-size:48px;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.5;transform:scale(.95)}50%{opacity:1;transform:scale(1)}}
+.loading-label{font-size:13px;color:var(--mist);letter-spacing:.12em;text-transform:uppercase;font-weight:500}
+.dot-row{display:flex;gap:6px}
+.dot{width:5px;height:5px;background:var(--amber);border-radius:50%;animation:blink 1.2s ease-in-out infinite}
+.dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
+
+.result-wrap{animation:rise .4s ease both}
+.result-header{border-bottom:1px solid var(--border);padding-bottom:28px;margin-bottom:32px}
+.result-eyebrow{font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:var(--amber);font-weight:600;margin-bottom:10px}
+.result-headline{font-family:'Libre Baskerville',serif;font-size:clamp(1.6rem,4vw,2.2rem);font-weight:700;line-height:1.12;color:var(--paper)}
+.result-body{font-size:15px;line-height:1.78;color:var(--ghost)}
+.result-body h3{font-family:'Libre Baskerville',serif;font-size:1rem;font-weight:700;color:var(--amber);margin:28px 0 10px;letter-spacing:.02em;text-transform:uppercase;font-size:.85rem}
+.result-body p{margin-bottom:14px}
+.result-body strong{color:var(--paper);font-weight:600}
+.result-body ul{margin:8px 0 16px;padding:0;list-style:none}
+.result-body ul li{padding:5px 0 5px 22px;position:relative;color:var(--ghost)}
+.result-body ul li::before{content:'▸';position:absolute;left:0;color:var(--amber-dim);font-size:11px;top:7px}
+.result-body .book-item{padding:10px 0 10px 22px;position:relative;border-bottom:1px solid var(--border)}
+.result-body .book-item:last-child{border-bottom:none}
+.result-body .book-item::before{content:'◆';position:absolute;left:0;color:var(--amber-dim);font-size:9px;top:13px}
+.book-title{color:var(--paper);font-weight:600}
+.book-why{color:var(--mist);font-size:13px;margin-top:2px}
+.tag-row{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 20px}
+.tag{padding:5px 12px;border:1px solid var(--amber-dim);border-radius:2px;font-size:11px;color:var(--amber);letter-spacing:.08em;text-transform:uppercase;font-weight:600}
+.profile-card{background:var(--deep);border:1px solid var(--border);border-radius:3px;padding:24px;margin-bottom:28px}
+.profile-card p{color:var(--ghost);font-size:15px;line-height:1.7}
+.avoid-item{padding:8px 0 8px 22px;position:relative;border-bottom:1px solid rgba(192,50,74,.15)}
+.avoid-item:last-child{border-bottom:none}
+.avoid-item::before{content:'✕';position:absolute;left:0;color:var(--crimson);font-size:11px;top:10px}
+.avoid-label{color:var(--ghost);font-weight:500}
+.avoid-why{color:var(--mist);font-size:13px;margin-top:2px}
+.gateway-box{background:linear-gradient(135deg,rgba(232,160,48,.08),rgba(232,160,48,.03));border:1px solid var(--amber-dim);border-radius:3px;padding:24px;margin:24px 0}
+.gateway-box .gw-label{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--amber);font-weight:600;margin-bottom:8px}
+.gateway-box .gw-title{font-family:'Libre Baskerville',serif;font-size:1.15rem;color:var(--paper);font-weight:700;margin-bottom:8px}
+.gateway-box .gw-why{font-size:14px;color:var(--ghost);line-height:1.6}
+.section-divider{height:1px;background:var(--border);margin:32px 0}
+.restart-row{margin-top:40px;padding-top:28px;border-top:1px solid var(--border);text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="site-header">
+  <div class="rune-line"><span class="rune">Perfil de Leitor</span></div>
+  <h1>Que tipo de leitor<br><span class="hl">você realmente é?</span></h1>
+  <p class="header-sub">15 perguntas para mapear seu perfil com precisão — gêneros, subgêneros, ritmo, tom, estrutura. No final você recebe uma análise completa e honesta.</p>
+  <div class="multi-badge">Você pode marcar mais de uma opção por pergunta</div>
+</header>
+
+<div id="quiz-section">
+  <div class="progress-row">
+    <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    <span class="prog-label" id="prog-label">0 / 15</span>
+  </div>
+  <div class="q-card" id="q-card">
+    <div class="q-meta">
+      <span class="q-num" id="q-num">Pergunta 1 de 15</span>
+      <span class="q-hint">Pode marcar quantas quiser</span>
+    </div>
+    <p class="q-text" id="q-text"></p>
+    <div class="options" id="opts"></div>
+  </div>
+  <div class="nav-row">
+    <button class="btn btn-ghost" id="back-btn" onclick="goBack()" style="display:none">← Voltar</button>
+    <button class="btn btn-primary" id="next-btn" onclick="goNext()" disabled>Próxima →</button>
+  </div>
+</div>
+
+<div id="result-section">
+  <div class="loading-scene" id="loading-scene">
+    <div class="tome-icon">📖</div>
+    <span class="loading-label">Analisando seu perfil</span>
+    <div class="dot-row"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+  </div>
+  <div id="result-wrap" style="display:none"></div>
+</div>
+
+</div>
+<script>
+// ─────────────────────────────────────────────────────────────
+// QUESTIONS  (tag arrays drive the scoring engine below)
+// ─────────────────────────────────────────────────────────────
+const Q = [
+  {
+    q:"Qual dessas sensações você mais busca ao ler um livro?",
+    opts:[
+      {t:"Adrenalina — preciso saber o que acontece a seguir, não consigo parar",          tags:["pace_fast","plot"]},
+      {t:"Imersão total — quero me perder num mundo por semanas",                           tags:["worldbuilding","immersion"]},
+      {t:"Reflexão — termino o capítulo e fico pensando por horas",                         tags:["literary","philosophical"]},
+      {t:"Perturbação — algo que me desconforte e me force a repensar coisas",              tags:["horror","psychological","dark"]},
+      {t:"Escapismo puro — desligar do real sem peso mental",                               tags:["adventure","pace_fast"]}
+    ]
+  },
+  {
+    q:"Se você pudesse morar dentro de um cenário literário, qual seria?",
+    opts:[
+      {t:"Um mundo de magia com lore profundo, história, política e religiões próprias",   tags:["fantasy","worldbuilding","epic"]},
+      {t:"O espaço sideral — naves, civilizações alienígenas, física levada a sério",       tags:["scifi","space_opera","hard_sf"]},
+      {t:"Uma cidade contemporânea com algo perturbador e oculto por baixo",               tags:["horror","urban_fantasy","thriller"]},
+      {t:"Um futuro próximo com tecnologia avançada e sociedade distorcida",               tags:["scifi","dystopia","cyberpunk"]},
+      {t:"O mundo real, mas com uma conspiração ou ameaça real acontecendo agora",        tags:["thriller","spy","conspiracy"]}
+    ]
+  },
+  {
+    q:"Qual desses elementos narrativos mais te prende numa história?",
+    opts:[
+      {t:"Plot denso e reviravoltas — quero ser surpreendido(a)",                           tags:["plot","thriller","pace_fast"]},
+      {t:"Personagens complexos que quebram, evoluem ou decepcionam",                      tags:["character","psychological","literary"]},
+      {t:"O universo em si — quero entender as regras daquele mundo",                      tags:["worldbuilding","fantasy","scifi"]},
+      {t:"As ideias por trás da história — filosofia, política, dilemas sem resposta fácil",tags:["philosophical","literary","political"]},
+      {t:"Atmosfera e tom — o modo como a história é contada, não só o que acontece",     tags:["literary","horror","atmospheric"]}
+    ]
+  },
+  {
+    q:"Como você se relaciona com violência, morte e moral ambígua em histórias?",
+    opts:[
+      {t:"Atraem — prefiro histórias que não poupam o leitor, que mostram o mundo cru",   tags:["grimdark","dark","horror"]},
+      {t:"Ok com moderação, desde que sirvam à narrativa e não sejam gratuitas",           tags:["dark","thriller","fantasy"]},
+      {t:"Gosto de moral ambígua, mas violência explícita não precisa aparecer muito",     tags:["philosophical","character","spy"]},
+      {t:"Prefiro histórias mais contidas — o peso pode vir de outro lugar",               tags:["literary","psychological","pace_slow"]},
+      {t:"Não me importo com quão sombria a história fica, desde que faça sentido",        tags:["grimdark","horror","dark"]}
+    ]
+  },
+  {
+    q:"Qual tipo de protagonista você prefere acompanhar?",
+    opts:[
+      {t:"Antierói ou protagonista moralmente cinza — que age por interesse próprio",      tags:["grimdark","dark","character"]},
+      {t:"Herói competente que vence por habilidade, estratégia e preparação",             tags:["thriller","spy","adventure"]},
+      {t:"Pessoa comum jogada numa situação extraordinária que é grande demais pra ela",   tags:["thriller","horror","plot"]},
+      {t:"Protagonista que cresce de fraco a poderoso — quero ver a evolução",            tags:["progression","adventure","epic"]},
+      {t:"Personagem introspectivo cuja batalha principal é interna, psicológica",        tags:["psychological","literary","character"]}
+    ]
+  },
+  {
+    q:"O que faz um vilão ou antagonista funcionar pra você?",
+    opts:[
+      {t:"Genuinamente ameaçador e implacável — uma força que não dá pra negociar",       tags:["horror","thriller","grimdark"]},
+      {t:"Compreensível e complexo — que eu quase entenda, mesmo discordando",            tags:["character","grimdark","literary"]},
+      {t:"O 'mal' é sistêmico ou estrutural, não uma pessoa só",                           tags:["dystopia","political","philosophical"]},
+      {t:"Uma força cósmica ou inexplicável, indiferente à existência humana",            tags:["cosmic_horror","horror","weird"]},
+      {t:"Um espelho sombrio do protagonista — o que ele poderia se tornar",              tags:["psychological","literary","grimdark"]}
+    ]
+  },
+  {
+    q:"Qual ritmo de leitura combina mais com você?",
+    opts:[
+      {t:"Breakneck — página virando sozinha, não consigo largar",                         tags:["pace_fast","thriller","plot"]},
+      {t:"Médio — quero avançar, mas com espaço pra digerir o que aconteceu",             tags:["pace_mid","fantasy","scifi"]},
+      {t:"Lento e denso — não me importo de demorar se cada página for rica",             tags:["pace_slow","literary","worldbuilding"]},
+      {t:"Variado — histórias que sabem dosar: cenas de ação e pausas de profundidade",   tags:["pace_mid","epic","fantasy"]},
+      {t:"Qualquer ritmo, desde que a prosa seja boa o suficiente pra justificar",        tags:["literary","atmospheric"]}
+    ]
+  },
+  {
+    q:"Como você se relaciona com estrutura narrativa não-convencional?",
+    opts:[
+      {t:"Amo narrador não-confiável — histórias que mentem pra mim deliberadamente",     tags:["psychological","thriller","literary"]},
+      {t:"Múltiplos POVs me atraem: quero ver o mesmo mundo por perspectivas diferentes", tags:["epic","fantasy","worldbuilding"]},
+      {t:"Linha do tempo não-linear, flashbacks e saltos temporais são bem-vindos",       tags:["literary","thriller","psychological"]},
+      {t:"Prefiro um narrador claro e cronologia direta — não gosto de trabalhar pra entender",tags:["pace_fast","plot","adventure"]},
+      {t:"Experimentos de estrutura são catnip — quanto mais incomum, mais curioso fico", tags:["literary","weird","atmospheric"]}
+    ]
+  },
+  {
+    q:"Qual o seu estilo de prosa ideal?",
+    opts:[
+      {t:"Enxuta e direta — a escrita some, só o que importa fica",                       tags:["pace_fast","thriller","hard_sf"]},
+      {t:"Densa e literária — prosa que eu leio mais devagar porque vale cada frase",     tags:["literary","atmospheric","pace_slow"]},
+      {t:"Diálogos afiados e interações entre personagens bem escritas",                  tags:["character","thriller","spy"]},
+      {t:"Descritiva e atmosférica — sinto o cheiro, a temperatura do lugar",             tags:["atmospheric","horror","worldbuilding"]},
+      {t:"Tanto faz o estilo — o que importa é que a história me puxe",                  tags:["plot","pace_fast"]}
+    ]
+  },
+  {
+    q:"Qual nível de worldbuilding te satisfaz?",
+    opts:[
+      {t:"Profundo: mapas, glossários, sistemas de magia/tecnologia com regras claras",   tags:["worldbuilding","epic","fantasy","hard_sf"]},
+      {t:"Médio: suficiente pra me orientar, sem parar a narrativa",                      tags:["pace_mid","thriller","scifi"]},
+      {t:"Mínimo: o mundo existe como pano de fundo, o foco é nos personagens e plot",    tags:["pace_fast","character","thriller"]},
+      {t:"Construção emergente: o mundo se revela aos poucos, nunca explicado diretamente",tags:["weird","horror","atmospheric","literary"]},
+      {t:"Não tenho preferência, desde que seja internamente consistente",                tags:["plot","pace_mid"]}
+    ]
+  },
+  {
+    q:"Séries ou livros independentes?",
+    opts:[
+      {t:"Séries longas — quero me perder num universo por meses ou anos",                tags:["epic","worldbuilding","fantasy"]},
+      {t:"Trilogias — profundidade sem me comprometer pra sempre",                        tags:["fantasy","scifi","pace_mid"]},
+      {t:"Standalone — ciclo completo num volume, sem espera entre livros",               tags:["thriller","literary","horror"]},
+      {t:"Tanto faz, mas odeio cliffhangers que deixam tudo em aberto",                  tags:["plot","pace_fast"]},
+      {t:"Prefiro universo compartilhado: cada livro funciona sozinho, mas fazem parte de algo maior",tags:["worldbuilding","scifi","fantasy"]}
+    ]
+  },
+  {
+    q:"Quais temas mais te interessam numa história?",
+    opts:[
+      {t:"Moral ambígua, ética em situações impossíveis, escolhas sem resposta certa",    tags:["grimdark","philosophical","literary"]},
+      {t:"Poder e política — corrupção, jogos de influência, quem controla o quê",       tags:["political","grimdark","dystopia","spy"]},
+      {t:"Questões existenciais e filosóficas — o que significa existir, ser consciente, morrer",tags:["philosophical","cosmic_horror","literary","scifi"]},
+      {t:"Trauma e psicologia — como pessoas quebram, sobrevivem e se reconstroem",      tags:["psychological","character","literary"]},
+      {t:"Conspiração e paranóia — quem realmente está no controle e por quê",           tags:["thriller","spy","conspiracy","political"]}
+    ]
+  },
+  {
+    q:"Qual tipo de final te satisfaz?",
+    opts:[
+      {t:"Satisfatório e conclusivo — tudo faz sentido e fecha bem",                      tags:["plot","adventure","pace_fast"]},
+      {t:"Amargo ou trágico — finais bonitos demais parecem desonestos",                  tags:["grimdark","literary","dark"]},
+      {t:"Ambíguo — prefiro ficar com perguntas do que tudo mastigado",                  tags:["literary","philosophical","weird"]},
+      {t:"Twist de dar nó no estômago — quero ser genuinamente surpreendido(a)",         tags:["thriller","plot","psychological"]},
+      {t:"Nihilista ou sem resolução — o mundo não resolve, a história também não precisa",tags:["cosmic_horror","grimdark","dark"]}
+    ]
+  },
+  {
+    q:"O que te tira IMEDIATAMENTE de uma história?",
+    opts:[
+      {t:"Romance sentimental que domina o enredo — amorzinho que vira o centro de tudo", tags:["no_romance"]},
+      {t:"Personagens que só reagem, nunca tomam decisões reais",                         tags:["need_agency"]},
+      {t:"Ausência de consequências — ninguém sofre de verdade, tudo resolve fácil demais",tags:["need_stakes","grimdark","dark"]},
+      {t:"Info-dump maçante logo no início — páginas de história do mundo antes de qualquer coisa",tags:["pace_fast","plot"]},
+      {t:"Ritmo morto sem recompensa — páginas passando sem nada significativo acontecer",tags:["pace_fast","plot"]}
+    ]
+  },
+  {
+    q:"Se você fosse indicar um livro que soa perfeito, qual perfil mais combina?",
+    opts:[
+      {t:"Fantasia épica ou grimdark (First Law, Stormlight Archive, Wheel of Time)",     tags:["fantasy","epic","grimdark","worldbuilding"]},
+      {t:"Ficção científica dura ou space opera (Duna, The Expanse, The Martian)",        tags:["scifi","space_opera","hard_sf"]},
+      {t:"Thriller psicológico ou espionagem (Gone Girl, le Carré, Gillian Flynn)",       tags:["thriller","psychological","spy"]},
+      {t:"Horror cósmico ou weird fiction (Lovecraft, Jeff VanderMeer, T. Kingfisher)",  tags:["horror","cosmic_horror","weird","atmospheric"]},
+      {t:"Crime/suspense policial — investigação, dedução, o mistério como motor",        tags:["thriller","mystery","plot"]}
+    ]
+  }
+];
+
+const LETTERS = ['A','B','C','D','E'];
+let cur = 0;
+const sel = Q.map(() => new Set());
+
+function render() {
+  const q = Q[cur];
+  document.getElementById('q-num').textContent = `Pergunta ${cur+1} de ${Q.length}`;
+  document.getElementById('q-text').textContent = q.q;
+  const c = document.getElementById('opts');
+  c.innerHTML = '';
+  q.opts.forEach((o,i)=>{
+    const d = document.createElement('div');
+    d.className = 'opt' + (sel[cur].has(i)?' selected':'');
+    d.innerHTML = `<div class="opt-check">${sel[cur].has(i)?'✓':''}</div><span class="opt-letter">${LETTERS[i]}</span><span class="opt-text">${o.t}</span>`;
+    d.onclick = ()=>toggle(i);
+    c.appendChild(d);
+  });
+  const pct = (cur/Q.length)*100;
+  document.getElementById('prog-fill').style.width = pct+'%';
+  document.getElementById('prog-label').textContent = `${cur} / ${Q.length}`;
+  document.getElementById('back-btn').style.display = cur>0?'':'none';
+  document.getElementById('next-btn').textContent = cur===Q.length-1?'Ver meu perfil →':'Próxima →';
+  document.getElementById('next-btn').disabled = sel[cur].size===0;
+  const card = document.getElementById('q-card');
+  card.style.animation='none'; void card.offsetWidth; card.style.animation='rise .32s ease both';
+}
+
+function toggle(i){
+  sel[cur].has(i)?sel[cur].delete(i):sel[cur].add(i);
+  render();
+}
+function goNext(){
+  if(sel[cur].size===0)return;
+  if(cur<Q.length-1){cur++;render();window.scrollTo({top:0,behavior:'smooth'});}
+  else showResult();
+}
+function goBack(){if(cur>0){cur--;render();window.scrollTo({top:0,behavior:'smooth'});}}
+
+// ─────────────────────────────────────────────────────────────
+// SCORING ENGINE
+// ─────────────────────────────────────────────────────────────
+function score(){
+  const counts = {};
+  Q.forEach((q,qi)=>{
+    [...sel[qi]].forEach(i=>{
+      q.opts[i].tags.forEach(tag=>{counts[tag]=(counts[tag]||0)+1;});
+    });
+  });
+  return counts;
+}
+
+// ─────────────────────────────────────────────────────────────
+// PROFILE TEMPLATES
+// ─────────────────────────────────────────────────────────────
+const PROFILES = {
+  grimdark:{
+    name:"Leitor Grimdark",
+    desc:"Você quer histórias que não mentem sobre o mundo. Moral cinza, sistemas corruptos, personagens capazes de atrocidades — não como provocação, mas como realismo. O que te prende é a sensação de que qualquer coisa pode acontecer e de que ninguém está seguro. Não é pessimismo: é precisão.",
+    tags:["Grimdark","Fantasia Sombria","Dark Fantasy","Ficção Política"]
+  },
+  epic_fantasy:{
+    name:"Leitor de Fantasia Épica",
+    desc:"Você quer mundos que existam de verdade — com história, política, religiões, sistemas de magia com regras. O tamanho não te assusta: uma série de 10 volumes é o ideal se o universo justificar. O que te segura não é só o plot, mas o prazer de habitar aquele lugar.",
+    tags:["Fantasia Épica","High Fantasy","Worldbuilding profundo","Séries longas"]
+  },
+  scifi:{
+    name:"Leitor de Ficção Científica",
+    desc:"Você é atraído por ideias. Seja a verossimilhança científica de hard SF, a escala vertiginosa de uma space opera, ou a paranoia de uma distopia — o que te interessa é o que a ficção científica faz de melhor: pegar a realidade e empurrá-la até o limite pra ver o que revela.",
+    tags:["Ficção Científica","Hard SF","Space Opera","Distopia"]
+  },
+  thriller:{
+    name:"Leitor de Thriller",
+    desc:"Você quer tensão com propósito. Plot que avança sem parar, revelações que reescrevem o que você achou que sabia, personagens que jogam xadrez enquanto aparentam jogar damas. O ritmo é tudo — e você reconhece imediatamente quando uma história perde o fio.",
+    tags:["Thriller","Suspense","Psychological Thriller","Crime"]
+  },
+  horror:{
+    name:"Leitor de Horror",
+    desc:"Você não foge do desconforto — você vai na direção dele. Seja o horror psicológico que faz você questionar o que é real, o horror cósmico que lembra que a humanidade é irrelevante, ou o horror atmosférico que constrói dread sem nunca mostrar o monstro. Você quer ser perturbado de verdade.",
+    tags:["Horror","Psychological Horror","Weird Fiction","Dark Fiction"]
+  },
+  cosmic_horror:{
+    name:"Leitor de Horror Cósmico",
+    desc:"O que te atrai é o abismo. Não o monstro que pode ser morto — mas a força que nem sabe que você existe. O horror cósmico te seduz precisamente porque não oferece resolução: o universo é indiferente, e o momento de compreensão do personagem é sempre pior do que a ignorância.",
+    tags:["Horror Cósmico","Weird Fiction","New Weird","Literatura do Estranhamento"]
+  },
+  literary:{
+    name:"Leitor Literário com Viés Especulativo",
+    desc:"Você não separa 'literatura de gênero' de 'literatura de verdade' — e tem razão. O que você busca é prosa que faça sentido existir, personagens que sobrevivam ao livro na sua cabeça, e histórias que sejam sobre algo além do próprio plot. O gênero é só o container.",
+    tags:["Ficção Literária","Especulativo Literário","Prosa de qualidade","Temas filosóficos"]
+  },
+  spy:{
+    name:"Leitor de Espionagem & Thriller Político",
+    desc:"Você quer jogos de poder de verdade. Não ação de Hollywood, mas a frieza calculada de pessoas que sabem que informação é a arma mais poderosa. Traição, lealdade impossível, sistemas que usam indivíduos como peões — tudo isso funciona pra você porque você entende que o mundo real funciona assim.",
+    tags:["Espionagem","Thriller Político","Crime","Conspiração"]
+  }
+};
+
+// ─────────────────────────────────────────────────────────────
+// BOOK DATABASE
+// ─────────────────────────────────────────────────────────────
+const BOOKS = {
+  // GRIMDARK
+  first_law:     {title:"A Primeira Lei (The First Law Trilogy)",author:"Joe Abercrombie",why:"O grimdark mais preciso do gênero — personagens que você acha que entende e depois percebe que não. Moral cinza radical, sem heróis funcionais, mundo politicamente corrompido.", tags:["grimdark","fantasy","dark","political","character","worldbuilding"]},
+  broken_empire:  {title:"O Império Partido (The Broken Empire)",author:"Mark Lawrence",why:"Narrador protagonist que é genuinamente capaz de atrocidade. Leitura perturbadora no sentido certo — você continua mesmo sabendo que não deveria gostar do Jorg.", tags:["grimdark","fantasy","dark","character","psychological"]},
+  prince_thorns:  {title:"Príncipe das Trevas (Prince of Thorns)",author:"Mark Lawrence",why:"Porta de entrada perfeita pro grimdark de personagem — Jorg é incomodo do jeito certo, e a revelação do mundo aos poucos é magistral.", tags:["grimdark","fantasy","dark","character","pace_fast"]},
+  blood_song:     {title:"Blood Song (A Canção de Sangue)",author:"Anthony Ryan",why:"Fantasia de personagem em mundo sombrio — cresce de fraco a poderoso mas sem ilusões sobre o que o poder custa.", tags:["grimdark","fantasy","epic","progression","character"]},
+  lies_locke:     {title:"As Mentiras de Locke Lamora",author:"Scott Lynch",why:"Antierói absolutamente carismático, crime organizado em mundo de fantasia, reviravoltas que reescrevem o que você achava que sabia. Ritmo impecável.", tags:["grimdark","fantasy","plot","character","pace_fast","thriller"]},
+
+  // EPIC FANTASY
+  stormlight:    {title:"O Caminho dos Reis (The Stormlight Archive)",author:"Brandon Sanderson",why:"Worldbuilding entre os mais elaborados do gênero — sistemas de magia com regras, política, história, múltiplos POVs. A série que vai te prender por anos.", tags:["epic","fantasy","worldbuilding","character","philosophical"]},
+  wheel_time:    {title:"A Roda do Tempo (The Wheel of Time)",author:"Robert Jordan",why:"O épico definitivo — 14 volumes com um universo que justifica cada um. Múltiplos POVs, escala de mundo real, política e conflito em todos os níveis.", tags:["epic","fantasy","worldbuilding","pace_mid"]},
+  name_wind:     {title:"O Nome do Vento (The Kingkiller Chronicle)",author:"Patrick Rothfuss",why:"Prosa literária dentro de fantasia épica — Kvothe narrando sua própria lenda cria uma tensão constante entre o que ele foi e o que é agora.", tags:["epic","fantasy","literary","atmospheric","character","worldbuilding"]},
+  mistborn:      {title:"Mistborn: O Império Final",author:"Brandon Sanderson",why:"Sistema de magia com regras precisas, mundo distópico de fantasia, plot de heist — e um twist de estrutura narrativa que reescreve todo o livro.", tags:["fantasy","epic","worldbuilding","plot","dark","grimdark"]},
+
+  // SCI-FI
+  dune:          {title:"Duna",author:"Frank Herbert",why:"O worldbuilding mais denso da ficção científica — ecologia, religião, política, profecia. Hard SF vestido de épico.", tags:["scifi","space_opera","hard_sf","worldbuilding","political","philosophical","epic"]},
+  expanse:       {title:"O Despertar do Leviatã (The Expanse)",author:"James S.A. Corey",why:"Space opera com física real — sem propulsão mágica, sem aliens convenientes, política interplanetária crível. O melhor da última década no gênero.", tags:["scifi","space_opera","hard_sf","political","worldbuilding","pace_mid"]},
+  martian:       {title:"O Marciano (The Martian)",author:"Andy Weir",why:"Ficção científica de resolução de problemas — prosa enxuta, humor seco, tensão que vem da física e não do drama. Breakneck e inteligente.", tags:["scifi","hard_sf","pace_fast","plot"]},
+  hyperion:      {title:"Hyperion",author:"Dan Simmons",why:"Estrutura inovadora (contos que formam um épico), múltiplas vozes, horror cósmico dentro de space opera. Filosofia, religião, tempo — tudo junto.", tags:["scifi","space_opera","literary","philosophical","cosmic_horror","worldbuilding","weird"]},
+  blindsight:    {title:"Blindsight",author:"Peter Watts",why:"O livro mais perturbador que a ficção científica dura produziu. Primeiro contato como horror existencial — o que acontece quando o alienígena é radicalmente incompreensível.", tags:["scifi","hard_sf","cosmic_horror","philosophical","psychological","weird","dark"]},
+  dark_forest:   {title:"O Problema dos Três Corpos / Floresta Escura",author:"Liu Cixin",why:"Escala de universo inteiro, física levada ao extremo, vilão que é um sistema cosmológico. O horror cósmico mais inteligente da ficção científica.", tags:["scifi","hard_sf","cosmic_horror","philosophical","worldbuilding","pace_mid"]},
+
+  // THRILLER / SPY
+  gone_girl:     {title:"Garota Exemplar (Gone Girl)",author:"Gillian Flynn",why:"Narrador não-confiável levado ao limite — você não sabe em quem acreditar e a estrutura abraça isso. Prosa afiada, ritmo implacável.", tags:["thriller","psychological","literary","pace_fast","plot","character"]},
+  le_carre:      {title:"O Espião que Saiu do Frio",author:"John le Carré",why:"Espionagem como tragedy — sem glamour, sem heróis, só o custo humano de sistemas que usam pessoas. O le Carré mais sombrio e o melhor ponto de entrada.", tags:["spy","thriller","literary","political","dark","character","philosophical"]},
+  tinker_tailor: {title:"Tinker, Tailor, Soldier, Spy",author:"John le Carré",why:"Plot de traição que exige e recompensa atenção total. Múltiplos POVs, linha do tempo não-linear, e a melhor revelação de espionagem da literatura.", tags:["spy","thriller","literary","political","pace_slow","psychological"]},
+  girl_dragon:   {title:"Os Homens que Não Amavam as Mulheres (Millennium)",author:"Stieg Larsson",why:"Crime investigativo com personagens que ficam na cabeça — Lisbeth Salander é um dos protagonistas mais marcantes do gênero. Escuro sem ser gratuito.", tags:["thriller","mystery","character","dark","pace_fast","plot"]},
+
+  // HORROR / WEIRD
+  annihilation:  {title:"Aniquilação (Southern Reach Trilogy)",author:"Jeff VanderMeer",why:"Weird fiction no melhor sentido — o inexplicável nunca é explicado, a atmosfera é sufocante, e você termina com mais perguntas do que começou. Horror de compreensão.", tags:["horror","weird","cosmic_horror","atmospheric","literary","psychological","pace_slow"]},
+  haunting:      {title:"A Assombração da Casa da Colina",author:"Shirley Jackson",why:"Horror psicológico que faz você questionar se o sobrenatural existe ou é a mente do personagem. Prosa magistral, terror que dura semanas.", tags:["horror","psychological","literary","atmospheric","pace_slow"]},
+  house_leaves:  {title:"A Casa das Folhas (House of Leaves)",author:"Mark Z. Danielewski",why:"Horror que experimenta com a estrutura do próprio livro — notas de rodapé, layouts impossíveis. Para quem quer que o formato faça parte do terror.", tags:["horror","weird","literary","psychological","atmospheric"]},
+  ballad_tom:    {title:"A Balada de Black Tom",author:"Victor LaValle",why:"Horror cósmico moderno com perspectiva que subverte Lovecraft por dentro. Curto, denso, e deixa marcas.", tags:["horror","cosmic_horror","weird","literary","atmospheric"]},
+
+  // BONUS CROSSOVER
+  blade_itself:  {title:"A Lâmina em Si Mesma (First Law)",author:"Joe Abercrombie",why:"Se você só vai ler um livro pra descobrir se grimdark é pra você — é esse. Setup aparentemente convencional que vai subvertendo tudo que você acha que sabe sobre fantasia.", tags:["grimdark","fantasy","dark","plot","character","pace_fast"]},
+  project_hm:    {title:"Project Hail Mary",author:"Andy Weir",why:"Ficção científica de alto ritmo com coração — resolução de problemas, humor seco e o primeiro contato mais emocionalmente satisfatório da última década.", tags:["scifi","hard_sf","pace_fast","plot","space_opera"]},
+};
+
+// ─────────────────────────────────────────────────────────────
+// ANALYSIS ENGINE
+// ─────────────────────────────────────────────────────────────
+function analyze(){
+  const c = score();
+
+  // 1. Detectar flags absolutas
+  const noRomance = (c['no_romance']||0) > 0;
+  const needStakes = (c['need_stakes']||0) > 0;
+
+  // 2. Calcular scores por categoria
+  const catScores = {
+    grimdark:   (c['grimdark']||0)*2 + (c['dark']||0),
+    epic:       (c['epic']||0)*2 + (c['worldbuilding']||0) + (c['fantasy']||0),
+    scifi:      (c['scifi']||0)*2 + (c['hard_sf']||0) + (c['space_opera']||0) + (c['dystopia']||0),
+    thriller:   (c['thriller']||0)*2 + (c['spy']||0) + (c['conspiracy']||0),
+    cosmic:     (c['cosmic_horror']||0)*3 + (c['weird']||0)*2 + (c['horror']||0),
+    horror:     (c['horror']||0)*2 + (c['psychological']||0) + (c['atmospheric']||0),
+    literary:   (c['literary']||0)*2 + (c['philosophical']||0) + (c['atmospheric']||0),
+    spy:        (c['spy']||0)*3 + (c['conspiracy']||0)*2 + (c['political']||0),
+  };
+
+  // Ajustes por sobreposição
+  if(catScores.grimdark > 0) catScores.epic += Math.floor(catScores.grimdark * 0.5);
+  if(catScores.cosmic > catScores.horror) catScores.horror = Math.floor(catScores.cosmic * 0.6);
+
+  // 3. Ordenar categorias
+  const ranked = Object.entries(catScores).sort((a,b)=>b[1]-a[1]);
+  const primary = ranked[0][0];
+  const secondary = ranked[1][0];
+  const tertiary = ranked[2][0];
+
+  // 4. Preferências de ritmo
+  const pFast = (c['pace_fast']||0);
+  const pSlow = (c['pace_slow']||0);
+  const paceLabel = pFast > pSlow+2 ? "ritmo rápido" : pSlow > pFast+2 ? "ritmo denso e lento" : "ritmo variável";
+
+  // 5. Estrutura narrativa
+  const wantsComplex = (c['psychological']||0)+(c['literary']||0) > 3;
+  const wantsWorldbuilding = (c['worldbuilding']||0) > 3;
+
+  // 6. Escolher perfil
+  let profile;
+  if(primary==='cosmic') profile = PROFILES.cosmic_horror;
+  else if(primary==='grimdark') profile = PROFILES.grimdark;
+  else if(primary==='spy') profile = PROFILES.spy;
+  else if(primary==='thriller') profile = PROFILES.thriller;
+  else if(primary==='scifi') profile = PROFILES.scifi;
+  else if(primary==='horror') profile = PROFILES.horror;
+  else if(primary==='literary') profile = PROFILES.literary;
+  else if(primary==='epic') profile = PROFILES.epic_fantasy;
+  else profile = PROFILES.thriller;
+
+  // 7. Subgêneros específicos
+  const subgenres = buildSubgenres(c, primary, secondary, tertiary, noRomance);
+
+  // 8. Livros recomendados
+  const books = selectBooks(c, primary, secondary, tertiary);
+
+  // 9. O que evitar
+  const avoids = buildAvoids(c, noRomance, needStakes);
+
+  // 10. Gateway
+  const gateway = selectGateway(c, primary, secondary);
+
+  return {profile, subgenres, books, avoids, gateway, paceLabel, wantsComplex, wantsWorldbuilding, c};
+}
+
+function buildSubgenres(c, p, s, t, noRomance){
+  const list = [];
+
+  if((c['grimdark']||0)>=2 || p==='grimdark'){
+    list.push({name:"Fantasia Grimdark", why:"Moral cinza radical, sistemas corruptos, consequências reais — exatamente o que você busca em histórias que não poupam."});
+  }
+  if((c['epic']||0)>=2 && (c['worldbuilding']||0)>=2){
+    list.push({name:"Fantasia Épica com Worldbuilding Profundo", why:"Você quer mundos que existam de verdade — mapas, história, política, sistemas de magia com regras internas consistentes."});
+  }
+  if((c['cosmic_horror']||0)>=2 || p==='cosmic'){
+    list.push({name:"Horror Cósmico / Weird Fiction", why:"Forças incompreensíveis, a irrelevância humana, revelação como punição — você quer o abismo que não devolve o olhar."});
+  }
+  if((c['psychological']||0)>=2 && (c['thriller']||0)>=1){
+    list.push({name:"Thriller Psicológico", why:"Narrador não-confiável, jogos mentais, realidade instável — você aprecia quando a história trabalha contra você ativamente."});
+  }
+  if((c['spy']||0)>=2 || s==='spy'){
+    list.push({name:"Thriller de Espionagem / Político", why:"Jogos de poder, traição como moeda, sistemas que usam pessoas como peões — você entende que o conflito mais interessante é o invisível."});
+  }
+  if((c['hard_sf']||0)>=1 && (c['scifi']||0)>=2){
+    list.push({name:"Hard Science Fiction", why:"Ficção científica que respeita a física — ideias que importam porque são plausíveis, tensão que vem da realidade e não da convenção."});
+  }
+  if((c['space_opera']||0)>=1 && (c['scifi']||0)>=2){
+    list.push({name:"Space Opera", why:"Escala de universo, civilizações, política galáctica — o épico da ficção científica, com toda a complexidade que você busca na fantasia."});
+  }
+  if((c['atmospheric']||0)>=2 && (c['horror']||0)>=1){
+    list.push({name:"Horror Atmosférico / Dark Fiction", why:"O horror que não precisa mostrar o monstro — construção de dread, prosa que carrega peso, tensão que não resolve fácil."});
+  }
+  if((c['literary']||0)>=3){
+    list.push({name:"Especulativo Literário", why:"Você não separa 'gênero' de 'literatura' — quer prosa que justifique existir e ideias que sobrevivam ao plot."});
+  }
+  if((c['dystopia']||0)>=1 && (c['political']||0)>=1){
+    list.push({name:"Distopia / Ficção Política", why:"Sistemas que falham, poder que corrompe, futuros que revelam o presente — distopia funciona pra você porque você leva a sério o que ela diz."});
+  }
+
+  // Garantir pelo menos 4
+  if(list.length < 4){
+    if(p==='epic' && !list.find(l=>l.name.includes('Épica'))){
+      list.push({name:"Fantasia Épica", why:"Mundos construídos com cuidado, escala de conflito real, séries que justificam o investimento de tempo."});
+    }
+    if(p==='scifi' && !list.find(l=>l.name.includes('Fiction'))){
+      list.push({name:"Ficção Científica", why:"Ideias que importam, mundos extrapolados da realidade, tensão que vem de premissas plausíveis."});
+    }
+    if(p==='thriller' && !list.find(l=>l.name.includes('Thriller'))){
+      list.push({name:"Thriller", why:"Ritmo que não perdoa, reviravoltas que reescrevem o que você achava que sabia, plot com consequências reais."});
+    }
+  }
+
+  return list.slice(0,6);
+}
+
+function selectBooks(c, p, s, t){
+  // Score each book against user's tags
+  const bookScores = Object.entries(BOOKS).map(([id,book])=>{
+    let sc = 0;
+    book.tags.forEach(tag=>{ sc += (c[tag]||0); });
+    return {id, book, sc};
+  }).sort((a,b)=>b.sc-a.sc);
+
+  // Ensure variety — pick top but avoid same-author duplicates
+  const seen_authors = new Set();
+  const result = [];
+  for(const {book} of bookScores){
+    if(result.length >= 7) break;
+    if(!seen_authors.has(book.author)){
+      result.push(book);
+      seen_authors.add(book.author);
+    } else if(result.length < 4){
+      result.push(book); // allow duplicate author if we need more
+    }
+  }
+  return result.slice(0,7);
+}
+
+function buildAvoids(c, noRomance, needStakes){
+  const list = [];
+  if(noRomance){
+    list.push({label:"Romantasy / Romance como foco central", why:"Qualquer história onde o relacionamento amoroso é o motor narrativo — você quer o conflito em outro lugar."});
+  }
+  if(needStakes || (c['need_stakes']||0)>0){
+    list.push({label:"Fantasia de baixo risco (Cozy Fantasy)", why:"Histórias sem consequências reais, onde ninguém sofre de verdade. Você precisa sentir que algo pode dar errado de verdade."});
+  }
+  if((c['pace_fast']||0)>(c['pace_slow']||0)+1){
+    list.push({label:"Ficção literária extremamente lenta sem recompensa de plot", why:"Você tem tolerância pra ritmo denso quando a prosa justifica, mas não pra páginas passando sem que nada significativo aconteça."});
+  }
+  list.push({label:"Noblebright / Fantasia com heróis puros", why:"Histórias onde o bem e o mal são claros e o herói vence porque é virtuoso. Você quer moral cinza, não maniqueísmo."});
+  if((c['worldbuilding']||0)+(c['epic']||0) < 2){
+    list.push({label:"Epics com prólogos históricos de 80 páginas", why:"Você quer worldbuilding, mas prefere que emerja naturalmente — info-dumps iniciais quebram o ritmo antes da história começar."});
+  }
+  list.push({label:"Thriller doméstico / Domestic Thriller", why:"Narrativas focadas em conflitos de relacionamento no ambiente familiar tendem a não ter a escala e as apostas que você busca."});
+  return list.slice(0,5);
+}
+
+function selectGateway(c, p, s){
+  // Map primary profile to gateway
+  const map = {
+    grimdark: BOOKS.blade_itself,
+    epic:     BOOKS.mistborn,
+    scifi:    (c['hard_sf']||0)>(c['space_opera']||0)?BOOKS.martian:BOOKS.expanse,
+    thriller: (c['spy']||0)>1?BOOKS.le_carre:BOOKS.gone_girl,
+    cosmic:   BOOKS.annihilation,
+    horror:   BOOKS.annihilation,
+    literary: BOOKS.hyperion,
+    spy:      BOOKS.le_carre,
+  };
+
+  // Secondary override
+  if(p==='epic' && (c['grimdark']||0)>=2) return BOOKS.blade_itself;
+  if(p==='scifi' && (c['cosmic_horror']||0)>=2) return BOOKS.blindsight;
+  if(p==='thriller' && (c['psychological']||0)>=2) return BOOKS.gone_girl;
+
+  return map[p] || BOOKS.lies_locke;
+}
+
+// ─────────────────────────────────────────────────────────────
+// RENDER RESULT
+// ─────────────────────────────────────────────────────────────
+function showResult(){
+  document.getElementById('quiz-section').style.display = 'none';
+  document.getElementById('result-section').style.display = 'block';
+  document.getElementById('prog-fill').style.width = '100%';
+  document.getElementById('prog-label').textContent = `${Q.length} / ${Q.length}`;
+
+  setTimeout(()=>{
+    const r = analyze();
+    renderResult(r);
+  }, 1800);
+}
+
+function renderResult(r){
+  const {profile, subgenres, books, avoids, gateway, paceLabel} = r;
+
+  let html = `
+    <div class="result-header">
+      <p class="result-eyebrow">Sua análise literária</p>
+      <h2 class="result-headline">${profile.name}</h2>
+    </div>
+    <div class="result-body">
+
+      <div class="profile-card">
+        <p>${profile.desc}</p>
+      </div>
+
+      <h3>Seus gêneros &amp; subgêneros</h3>
+      <div class="tag-row">${profile.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+  `;
+
+  subgenres.forEach(sg=>{
+    html += `<div class="avoid-item"><div class="avoid-label">${sg.name}</div><div class="avoid-why">${sg.why}</div></div>`;
+  });
+
+  html += `<div class="section-divider"></div><h3>Livros que você provavelmente vai amar</h3>`;
+
+  books.forEach(b=>{
+    html += `<div class="book-item"><div class="book-title">${b.title} — <em>${b.author}</em></div><div class="book-why">${b.why}</div></div>`;
+  });
+
+  html += `<div class="section-divider"></div><h3>O que provavelmente vai te frustrar</h3>`;
+
+  avoids.forEach(a=>{
+    html += `<div class="avoid-item"><div class="avoid-label">${a.label}</div><div class="avoid-why">${a.why}</div></div>`;
+  });
+
+  html += `
+      <div class="section-divider"></div>
+      <h3>Por onde começar agora</h3>
+      <div class="gateway-box">
+        <div class="gw-label">Porta de entrada recomendada</div>
+        <div class="gw-title">${gateway.title} — ${gateway.author}</div>
+        <div class="gw-why">${gateway.why}</div>
+      </div>
+
+      <div class="restart-row">
+        <button class="btn btn-ghost" onclick="restart()">↺ Refazer o quiz</button>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('loading-scene').style.display = 'none';
+  document.getElementById('result-wrap').innerHTML = html;
+  document.getElementById('result-wrap').style.display = '';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function restart(){
+  cur = 0;
+  sel.forEach(s=>s.clear());
+  document.getElementById('quiz-section').style.display = '';
+  document.getElementById('result-section').style.display = 'none';
+  document.getElementById('result-wrap').style.display = 'none';
+  document.getElementById('loading-scene').style.display = 'flex';
+  render();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+render();
+</script>
+</body>
+</html>
