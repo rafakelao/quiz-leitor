@@ -441,6 +441,37 @@ const BOOKS = {
   // BONUS CROSSOVER
   blade_itself:  {title:"A Lâmina em Si Mesma (First Law)",author:"Joe Abercrombie",why:"Se você só vai ler um livro pra descobrir se grimdark é pra você — é esse. Setup aparentemente convencional que vai subvertendo tudo que você acha que sabe sobre fantasia.", tags:["grimdark","fantasy","dark","plot","character","pace_fast"]},
   project_hm:    {title:"Project Hail Mary",author:"Andy Weir",why:"Ficção científica de alto ritmo com coração — resolução de problemas, humor seco e o primeiro contato mais emocionalmente satisfatório da última década.", tags:["scifi","hard_sf","pace_fast","plot","space_opera"]},
+
+  // CLÁSSICOS FAMOSOS — FANTASIA ÉPICA
+  got:           {title:"A Guerra dos Tronos (As Crônicas de Gelo e Fogo)",author:"George R. R. Martin",why:"O cruzamento perfeito entre épico e grimdark — política implacável, múltiplos POVs, e a sensação constante de que qualquer personagem pode morrer.", tags:["grimdark","epic","fantasy","political","character","worldbuilding"]},
+  lotr:          {title:"O Senhor dos Anéis",author:"J.R.R. Tolkien",why:"A fundação do gênero — worldbuilding com idiomas, história e mitologia próprias. Referência obrigatória pra quem gosta de épico de verdade.", tags:["epic","fantasy","worldbuilding","adventure"]},
+  hobbit:        {title:"O Hobbit",author:"J.R.R. Tolkien",why:"Porta de entrada mais leve pro mesmo universo de Tolkien — aventura, escapismo e worldbuilding com ritmo mais ágil.", tags:["fantasy","epic","adventure","worldbuilding","pace_mid"]},
+  harry_potter:  {title:"Harry Potter e a Pedra Filosofal",author:"J.K. Rowling",why:"Fantasia acessível com worldbuilding consistente que se aprofunda a cada livro — ótimo pra quem quer entrar numa série longa sem peso grimdark.", tags:["fantasy","adventure","character","pace_mid","epic"]},
+
+  // CLÁSSICOS FAMOSOS — SCI-FI
+  foundation:    {title:"Fundação",author:"Isaac Asimov",why:"O pilar da ficção científica de ideias — império galáctico, previsão matemática do futuro, escala épica com base científica.", tags:["scifi","hard_sf","space_opera","political","philosophical"]},
+  nineteen84:    {title:"1984",author:"George Orwell",why:"A distopia mais influente já escrita — vigilância total, controle da linguagem e do pensamento. Tão político quanto literário.", tags:["scifi","dystopia","political","philosophical","literary"]},
+  brave_new:     {title:"Admirável Mundo Novo",author:"Aldous Huxley",why:"Distopia que assusta pelo conforto, não pela opressão explícita — sociedade controlada pelo prazer e pela genética.", tags:["scifi","dystopia","political","philosophical","literary"]},
+  hitchhiker:    {title:"O Guia do Mochileiro das Galáxias",author:"Douglas Adams",why:"Space opera com humor absurdo — leve, rápido e cheio de ideias inteligentes disfarçadas de piada.", tags:["scifi","space_opera","pace_fast","plot"]},
+  neuromancer:   {title:"Neuromancer",author:"William Gibson",why:"O livro que inventou o cyberpunk — futuro distópico, tecnologia e crime narrados com prosa densa e atmosférica.", tags:["scifi","dystopia","atmospheric","literary"]},
+  enders_game:   {title:"O Jogo do Exterminador (Ender's Game)",author:"Orson Scott Card",why:"Ficção científica de ritmo rápido sobre guerra, estratégia e infância perdida — vira página fácil e tem peso emocional real.", tags:["scifi","hard_sf","character","plot","pace_fast"]},
+
+  // CLÁSSICOS FAMOSOS — THRILLER / SPY
+  davinci_code:  {title:"O Código Da Vinci",author:"Dan Brown",why:"Thriller de conspiração que populariza o gênero — ritmo acelerado, mistério histórico, capítulos curtos que não deixam parar.", tags:["thriller","conspiracy","plot","pace_fast"]},
+  girl_train:    {title:"A Garota no Trem",author:"Paula Hawkins",why:"Narrador não-confiável e psicologia à flor da pele — um dos thrillers psicológicos mais populares da última década.", tags:["thriller","psychological","character","pace_fast"]},
+  bourne:        {title:"A Identidade Bourne",author:"Robert Ludlum",why:"Espionagem de ritmo acelerado com amnésia, perseguição e reviravoltas constantes — referência do thriller de ação/espionagem.", tags:["spy","thriller","plot","pace_fast"]},
+
+  // CLÁSSICOS FAMOSOS — HORROR
+  it_king:       {title:"It: A Coisa",author:"Stephen King",why:"Horror que mistura monstro cósmico com trauma de infância — atmosfera pesada e personagens que ficam com você por anos.", tags:["horror","character","atmospheric","dark","pace_mid"]},
+  shining:       {title:"O Iluminado",author:"Stephen King",why:"Horror psicológico claustrofóbico — isolamento, loucura gradual e uma das atmosferas mais sufocantes já escritas.", tags:["horror","psychological","atmospheric","dark"]},
+  dracula:       {title:"Drácula",author:"Bram Stoker",why:"O clássico fundador do horror gótico — atmosfera vitoriana densa e o vampiro que originou o gênero todo.", tags:["horror","atmospheric","literary","dark"]},
+  frankenstein:  {title:"Frankenstein",author:"Mary Shelley",why:"Horror filosófico sobre criação, responsabilidade e o que nos torna monstros — tão profundo quanto perturbador.", tags:["horror","philosophical","literary","dark"]},
+
+  // CLÁSSICOS FAMOSOS — LITERÁRIO
+  monte_cristo:  {title:"O Conde de Monte Cristo",author:"Alexandre Dumas",why:"Vingança, traição e reviravoltas num épico de aventura clássico — prova de que plot denso e literatura andam juntos.", tags:["literary","plot","character","epic"]},
+  crime_castigo: {title:"Crime e Castigo",author:"Fiódor Dostoiévski",why:"Mergulho psicológico na mente de um assassino — culpa, moralidade e filosofia em estado puro.", tags:["literary","psychological","philosophical","dark"]},
+  cem_anos:      {title:"Cem Anos de Solidão",author:"Gabriel García Márquez",why:"Realismo mágico de escala épica — gerações de uma família, prosa densa e atmosfera única.", tags:["literary","epic","atmospheric","philosophical"]},
+  nome_rosa:     {title:"O Nome da Rosa",author:"Umberto Eco",why:"Mistério filosófico ambientado num mosteiro medieval — denso, erudito e genuinamente intrigante.", tags:["literary","philosophical","atmospheric","plot"]},
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -485,22 +516,18 @@ function analyze(){
   const wantsWorldbuilding = (c['worldbuilding']||0) > 3;
 
   // 6. Escolher perfil
-  let profile;
-  if(primary==='cosmic') profile = PROFILES.cosmic_horror;
-  else if(primary==='grimdark') profile = PROFILES.grimdark;
-  else if(primary==='spy') profile = PROFILES.spy;
-  else if(primary==='thriller') profile = PROFILES.thriller;
-  else if(primary==='scifi') profile = PROFILES.scifi;
-  else if(primary==='horror') profile = PROFILES.horror;
-  else if(primary==='literary') profile = PROFILES.literary;
-  else if(primary==='epic') profile = PROFILES.epic_fantasy;
-  else profile = PROFILES.thriller;
+  const CAT_TO_PROFILE = {grimdark:'grimdark', epic:'epic_fantasy', scifi:'scifi', thriller:'thriller', cosmic:'cosmic_horror', horror:'horror', literary:'literary', spy:'spy'};
+  const profile = PROFILES[CAT_TO_PROFILE[primary]] || PROFILES.thriller;
+  let secondaryProfile = PROFILES[CAT_TO_PROFILE[secondary]] || null;
+  if(secondaryProfile && secondaryProfile.name === profile.name){
+    secondaryProfile = PROFILES[CAT_TO_PROFILE[tertiary]] || null;
+  }
 
   // 7. Subgêneros específicos
   const subgenres = buildSubgenres(c, primary, secondary, tertiary, noRomance);
 
   // 8. Livros recomendados
-  const books = selectBooks(c, primary, secondary, tertiary);
+  const books = selectBooks(c, primary, secondary, tertiary, 14);
 
   // 9. O que evitar
   const avoids = buildAvoids(c, noRomance, needStakes);
@@ -508,7 +535,7 @@ function analyze(){
   // 10. Gateway
   const gateway = selectGateway(c, primary, secondary);
 
-  return {profile, subgenres, books, avoids, gateway, paceLabel, wantsComplex, wantsWorldbuilding, c};
+  return {profile, secondaryProfile, subgenres, books, avoids, gateway, paceLabel, wantsComplex, wantsWorldbuilding, c};
 }
 
 function buildSubgenres(c, p, s, t, noRomance){
@@ -561,7 +588,7 @@ function buildSubgenres(c, p, s, t, noRomance){
   return list.slice(0,6);
 }
 
-function selectBooks(c, p, s, t){
+function selectBooks(c, p, s, t, count=14){
   // Score each book against user's tags
   const bookScores = Object.entries(BOOKS).map(([id,book])=>{
     let sc = 0;
@@ -573,15 +600,15 @@ function selectBooks(c, p, s, t){
   const seen_authors = new Set();
   const result = [];
   for(const {book} of bookScores){
-    if(result.length >= 7) break;
+    if(result.length >= count) break;
     if(!seen_authors.has(book.author)){
       result.push(book);
       seen_authors.add(book.author);
-    } else if(result.length < 4){
+    } else if(result.length < Math.ceil(count*0.6)){
       result.push(book); // allow duplicate author if we need more
     }
   }
-  return result.slice(0,7);
+  return result.slice(0,count);
 }
 
 function buildAvoids(c, noRomance, needStakes){
@@ -640,7 +667,7 @@ function showResult(){
 }
 
 function renderResult(r){
-  const {profile, subgenres, books, avoids, gateway, paceLabel} = r;
+  const {profile, secondaryProfile, subgenres, books, avoids, gateway, paceLabel} = r;
 
   let html = `
     <div class="result-header">
@@ -653,9 +680,19 @@ function renderResult(r){
         <p>${profile.desc}</p>
       </div>
 
-      <h3>Seus gêneros &amp; subgêneros</h3>
+      <h3>Seu gênero principal</h3>
       <div class="tag-row">${profile.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
   `;
+
+  if(secondaryProfile){
+    html += `
+      <h3>Afinidade secundária</h3>
+      <p><strong>${secondaryProfile.name}</strong></p>
+      <div class="tag-row">${secondaryProfile.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+    `;
+  }
+
+  html += `<h3>Subgêneros mapeados</h3>`;
 
   subgenres.forEach(sg=>{
     html += `<div class="avoid-item"><div class="avoid-label">${sg.name}</div><div class="avoid-why">${sg.why}</div></div>`;
